@@ -1,6 +1,7 @@
 package com.thecodest.bigfiles.printers;
 
 import com.thecodest.bigfiles.DataRecord;
+import java.util.Locale;
 
 class JsonPrinter implements DataPrinter {
 
@@ -12,7 +13,8 @@ class JsonPrinter implements DataPrinter {
 			System.out.println("[");
 			isOpen = true;
 		}
-		System.out.printf("""
+		System.out.printf(Locale.ENGLISH,
+						  """
 							  {"year": %s, "temp": "%.4g°C"}
 							  """, dataRecord.year(), dataRecord.temp());
 	}

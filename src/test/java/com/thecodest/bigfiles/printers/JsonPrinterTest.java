@@ -31,8 +31,8 @@ class JsonPrinterTest {
 		sut.close();
 		Assertions.assertThat(helper.getOut()).isEqualTo("""
 															 [
-															 {"year": 2023, "temp": "0,000°C"}
-															 {"year": 2024, "temp": "0,000°C"}
+															 {"year": 2023, "temp": "0.000°C"}
+															 {"year": 2024, "temp": "0.000°C"}
 															 ]
 															 """);
 	}

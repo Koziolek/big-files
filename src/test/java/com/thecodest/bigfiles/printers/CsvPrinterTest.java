@@ -28,6 +28,6 @@ class CsvPrinterTest {
 	void shouldPrintRecord() {
 		sut.print(new DataRecord(2024, 0.0));
 		sut.close();
-		Assertions.assertThat(helper.getOut()).isEqualTo("2024;0,000°C\n");
+		Assertions.assertThat(helper.getOut()).isEqualTo("2024;0.000°C\n");
 	}
 }

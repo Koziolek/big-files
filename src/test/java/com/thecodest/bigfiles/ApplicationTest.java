@@ -30,12 +30,12 @@ class ApplicationTest {
 			"Warszawa", "-f", "./src/test/resources/example_file.csv", "-p", "--printer", "CSV"
 		});
 		Assertions.assertThat(helper.getOut()).isEqualTo("""
-															 2018;13,52°C
-															 2019;13,81°C
-															 2020;16,12°C
-															 2021;15,61°C
-															 2022;14,68°C
-															 2023;15,46°C
+															 2018;13.52°C
+															 2019;13.81°C
+															 2020;16.12°C
+															 2021;15.61°C
+															 2022;14.68°C
+															 2023;15.46°C
 															 """);
 	}
 
