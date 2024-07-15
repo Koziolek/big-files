@@ -1,6 +1,18 @@
 # Big files processing
 
-This is solution of https://github.com/Kyotu-Technology/kyotu/tree/main/recruitment-challenges/large-file-reading-challenge
+This is solution of https://github.com/Kyotu-Technology/kyotu/tree/main/recruitment-challenges/large-file-reading-challenge.
+
+I know that I could use DB. Yes then you just need to write something like this:
+
+```postgresql
+SELECT date_part('year', mesure_time) as year, round(avg(temperature)::numeric, 2) as temperature
+FROM data_points
+WHERE city = '$city'
+GROUP BY city, year
+ORDER BY year;
+```
+
+But, where is fun? More information about that approach you can find in [database](./database) folder. 
 
 ## Requirements
 
@@ -24,9 +36,10 @@ $ git clone git@github.com:Koziolek/big-files.git
 $ cd big-files
 $ mvn clean verify
 ```
-That will run build process and test. 
 
-### Run 
+That will run build process and test.
+
+### Run
 
 In `target` directory there will be `big-files-1.0-SNAPSHOT-jar-with-dependencies.jar` file. Run it:
 
@@ -46,13 +59,13 @@ for i in {1..10000}; do cat ./src/test/resources/example_file.csv  >> ./src/test
 
 ### Other options
 
-All options are available by using `-h` or `--help` switch. 
+All options are available by using `-h` or `--help` switch.
 
 #### -c,--city <city>
 
 Name of city that you interested in.
 
-#### -f,--file <file>               
+#### -f,--file <file>
 
 Path to data file
 
@@ -60,29 +73,29 @@ Path to data file
 
 Type of calculator NAIVE or INPLACE. Default is INPLACE.
 
-#### -h,--help                   
+#### -h,--help
 
 Prints help
 
-#### -p,--parallel               
+#### -p,--parallel
 
 Work in parallel mode (faster but need more memory). Default false.
 
-#### -P,--printer <printer>      
+#### -P,--printer <printer>
 
 If set prints data in given format: JSON or CSV. Default format is plain text
 
-#### -s,--smart                  
+#### -s,--smart
 
 If set ignores -C and -p. Calculator is picked in smart way based on number of CPU and memory.
 
-#### -w,--watcher <watcher>      
+#### -w,--watcher <watcher>
 
 What to do when file change during processing. Default is just log. Use ERROR to stop processing and throw.
 
 ### Example usage
 
-Very small memory and very big file example. This will take time, but is possible to finish. 
+Very small memory and very big file example. This will take time, but is possible to finish.
 
 ```shell
 $ time java -Xmx8m -jar target/big-files-1.0-SNAPSHOT-jar-with-dependencies.jar -c Warszawa -f ./src/test/resources/long.csv -C INPLACE
@@ -127,7 +140,7 @@ $ time java -Xmx4m -jar target/big-files-1.0-SNAPSHOT-jar-with-dependencies.jar 
         0:00.46 real,   0.35 user,      0.03 sys,       0 avg_mem,      59004 max_mem 
 ```
 
-Using file watcher (`ERROR` mode) 
+Using file watcher (`ERROR` mode)
 
 ```shell
 $ time java -jar target/big-files-1.0-SNAPSHOT-jar-with-dependencies.jar -c Warszawa -f ./src/test/resources/long.csv -C INPLACE -w ERROR -p
@@ -151,10 +164,40 @@ Command exited with non-zero status 1
         0:03.50 real,   15.39 user,     3.48 sys,       0 avg_mem,      2911992 max_mem
 ```
 
-But in another terminal you run 
+But in another terminal you run
 
 ```shell
 for i in {1..10000}; do cat ./src/test/resources/example_file.csv  >> ./src/test/resources/long.csv ; done;
 ```
 
-Just after program starts. 
+Just after program starts. In this mode watcher throws exception immediately when detect file change.
+
+Using file watcher (`LOG` mode)
+
+```shell
+$ time java -jar target/big-files-1.0-SNAPSHOT-jar-with-dependencies.jar -c Warszawa -f ./src/test/resources/long.csv -C INPLACE -p
+File was changed during processing. You need to manually restart program.
+Returned result could be inconsistent with current state of file.
+
+2018 » 13.56°C
+2019 » 13.81°C
+2020 » 16.12°C
+2021 » 15.61°C
+2022 » 14.68°C
+2023 » 15.46°C
+        0:04.70 real,   34.77 user,     14.43 sys,      0 avg_mem,      8444888 max_mem
+```
+
+But in another terminal you run
+
+```shell
+for i in {1..10000}; do cat ./src/test/resources/example_file.csv  >> ./src/test/resources/long.csv ; done;
+```
+
+Just after program starts. In this mode watcher will log information about change at the end of processing. Results depends on change type.
+
+* If record that changed was already processed then that change will be ignored.
+* If record that changed is not yet processed then new value will be taken.
+* If new record append at the end of file then will be processed as normal.
+* If new record append before currently processed record then that change will be ignored and currently processed record will be processed one more
+  time in next processing step.
